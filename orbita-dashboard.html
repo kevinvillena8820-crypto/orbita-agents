@@ -1,0 +1,1212 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Orbita OS</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --bg:#070809;--s1:#0d0f12;--s2:#121519;--s3:#181c22;
+  --b1:rgba(255,255,255,.05);--b2:rgba(255,255,255,.09);--b3:rgba(255,255,255,.14);
+  --txt:#c8cdd8;--txt2:#6b7280;--txt3:#3d4148;
+  --g:#00ff88;--g2:rgba(0,255,136,.12);--g3:rgba(0,255,136,.06);
+  --b:#4d9eff;--b2c:rgba(77,158,255,.12);
+  --a:#ff6b35;--a2:rgba(255,107,53,.12);
+  --p:#a78bfa;--p2:rgba(167,139,250,.12);
+  --y:#fbbf24;--y2:rgba(251,191,36,.12);
+  --r:#f87171;--r2:rgba(248,113,113,.12);
+  --mono:'JetBrains Mono',monospace;
+  --display:'Bebas Neue',sans-serif;
+  --sans:'Outfit',sans-serif;
+  --nav:220px;
+}
+html,body{height:100%;overflow:hidden;}
+body{background:var(--bg);color:var(--txt);font-family:var(--sans);display:flex;flex-direction:column;}
+
+/* SCANLINES */
+body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.03) 2px,rgba(0,0,0,.03) 4px);pointer-events:none;z-index:9999;}
+
+/* LAYOUT */
+.app{display:flex;flex:1;overflow:hidden;}
+
+/* SIDEBAR NAV */
+nav{
+  width:var(--nav);flex-shrink:0;
+  background:var(--s1);
+  border-right:1px solid var(--b1);
+  display:flex;flex-direction:column;
+  padding:0;overflow-y:auto;
+}
+.nav-logo{
+  padding:24px 20px 20px;
+  border-bottom:1px solid var(--b1);
+  display:flex;align-items:center;gap:10px;
+}
+.logo-hex{
+  width:34px;height:34px;
+  background:linear-gradient(135deg,rgba(0,255,136,.2),rgba(77,158,255,.15));
+  border:1px solid rgba(0,255,136,.3);
+  border-radius:8px;display:flex;align-items:center;justify-content:center;
+  font-size:16px;flex-shrink:0;
+}
+.logo-txt{font-family:var(--display);font-size:22px;letter-spacing:2px;color:#fff;}
+.logo-ver{font-family:var(--mono);font-size:8px;color:var(--txt2);letter-spacing:1px;}
+
+.nav-section{padding:16px 12px 6px;font-family:var(--mono);font-size:8px;letter-spacing:2px;color:var(--txt3);text-transform:uppercase;}
+
+.nav-item{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 16px;margin:1px 8px;
+  border-radius:8px;cursor:pointer;
+  font-size:13px;font-weight:500;
+  color:var(--txt2);
+  transition:all .15s;
+  position:relative;
+  border:1px solid transparent;
+}
+.nav-item:hover{background:var(--b1);color:var(--txt);}
+.nav-item.activo{
+  background:var(--g3);
+  border-color:rgba(0,255,136,.15);
+  color:var(--g);
+}
+.nav-item.activo::before{
+  content:'';position:absolute;left:0;top:25%;bottom:25%;
+  width:3px;background:var(--g);border-radius:0 3px 3px 0;
+}
+.nav-icon{font-size:15px;flex-shrink:0;}
+.nav-badge{
+  margin-left:auto;font-family:var(--mono);font-size:9px;
+  padding:2px 6px;border-radius:4px;
+}
+.nb-g{background:var(--g2);color:var(--g);}
+.nb-a{background:var(--a2);color:var(--a);}
+.nb-y{background:var(--y2);color:var(--y);}
+.nb-r{background:var(--r2);color:var(--r);}
+
+.nav-footer{
+  margin-top:auto;padding:16px;
+  border-top:1px solid var(--b1);
+}
+.sys-status{
+  display:flex;align-items:center;gap:8px;
+  font-family:var(--mono);font-size:9px;color:var(--txt2);letter-spacing:.5px;
+}
+.sys-dot{width:6px;height:6px;border-radius:50%;background:var(--g);box-shadow:0 0 6px var(--g);animation:pulso 2s ease-in-out infinite;}
+@keyframes pulso{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* TOPBAR */
+.topbar{
+  background:var(--s1);border-bottom:1px solid var(--b1);
+  padding:0 24px;height:52px;
+  display:flex;align-items:center;justify-content:space-between;
+  flex-shrink:0;
+}
+.topbar-left{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11px;color:var(--txt2);}
+.breadcrumb-sep{color:var(--txt3);}
+.breadcrumb-cur{color:var(--txt);}
+.topbar-right{display:flex;align-items:center;gap:16px;}
+.reloj-top{font-family:var(--mono);font-size:11px;color:var(--txt2);letter-spacing:1px;}
+.btn-lanzar-top{
+  display:flex;align-items:center;gap:6px;
+  padding:7px 14px;
+  background:var(--g2);border:1px solid rgba(0,255,136,.25);
+  border-radius:6px;color:var(--g);
+  font-family:var(--mono);font-size:10px;letter-spacing:.5px;
+  cursor:pointer;transition:all .2s;
+}
+.btn-lanzar-top:hover{background:rgba(0,255,136,.2);box-shadow:0 0 16px rgba(0,255,136,.15);}
+
+/* MAIN CONTENT */
+.content{flex:1;overflow-y:auto;padding:24px;}
+.content::-webkit-scrollbar{width:4px;}
+.content::-webkit-scrollbar-thumb{background:var(--b2);border-radius:4px;}
+
+/* PAGE */
+.page{display:none;animation:pageIn .2s ease;}
+.page.visible{display:block;}
+@keyframes pageIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* PAGE HEADER */
+.ph{margin-bottom:24px;}
+.ph-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px;}
+.ph-titulo{font-family:var(--display);font-size:42px;letter-spacing:2px;color:#fff;line-height:1;}
+.ph-sub{font-family:var(--mono);font-size:11px;color:var(--txt2);letter-spacing:.5px;margin-top:4px;}
+.ph-acciones{display:flex;gap:8px;align-items:center;}
+
+/* BOTONES */
+.btn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:9px 16px;border-radius:7px;
+  font-family:var(--mono);font-size:11px;letter-spacing:.3px;
+  cursor:pointer;border:1px solid transparent;transition:all .18s;
+  font-weight:500;
+}
+.btn-pri{background:var(--g);color:#000;border-color:var(--g);}
+.btn-pri:hover{background:#00e67a;box-shadow:0 0 20px rgba(0,255,136,.3);transform:translateY(-1px);}
+.btn-sec{background:var(--b1);color:var(--txt);border-color:var(--b2);}
+.btn-sec:hover{background:var(--b2);border-color:var(--b3);}
+.btn-danger{background:var(--r2);color:var(--r);border-color:rgba(248,113,113,.25);}
+.btn-danger:hover{background:rgba(248,113,113,.2);}
+.btn-sm{padding:5px 10px;font-size:10px;}
+.btn-icon{padding:7px;border-radius:6px;}
+
+/* GRID DE MÉTRICAS */
+.grid-met{display:grid;gap:12px;margin-bottom:20px;}
+.g4{grid-template-columns:repeat(4,1fr);}
+.g5{grid-template-columns:repeat(5,1fr);}
+.g3{grid-template-columns:repeat(3,1fr);}
+.g2{grid-template-columns:repeat(2,1fr);}
+
+.met{
+  background:var(--s1);border:1px solid var(--b1);
+  border-radius:12px;padding:16px 18px;
+  position:relative;overflow:hidden;
+  transition:border-color .2s,transform .2s;cursor:default;
+}
+.met:hover{border-color:var(--b2);transform:translateY(-1px);}
+.met::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;border-radius:12px 12px 0 0;}
+.met.cg::before{background:var(--g);}
+.met.cb::before{background:var(--b);}
+.met.ca::before{background:var(--a);}
+.met.cp::before{background:var(--p);}
+.met.cy::before{background:var(--y);}
+.met.cr::before{background:var(--r);}
+.met-lbl{font-family:var(--mono);font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--txt2);margin-bottom:8px;}
+.met-val{font-family:var(--display);font-size:38px;letter-spacing:1px;line-height:1;}
+.met.cg .met-val{color:var(--g);}
+.met.cb .met-val{color:var(--b);}
+.met.ca .met-val{color:var(--a);}
+.met.cp .met-val{color:var(--p);}
+.met.cy .met-val{color:var(--y);}
+.met.cr .met-val{color:var(--r);}
+.met-sub{font-family:var(--mono);font-size:9px;color:var(--txt2);margin-top:5px;}
+
+/* PANELES */
+.panel{background:var(--s1);border:1px solid var(--b1);border-radius:12px;overflow:hidden;margin-bottom:16px;}
+.panel-h{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 18px;border-bottom:1px solid var(--b1);
+}
+.panel-tit{font-family:var(--sans);font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px;}
+.panel-tag{font-family:var(--mono);font-size:9px;color:var(--txt2);letter-spacing:1px;}
+.panel-body{padding:18px;}
+.panel-body-0{padding:0;}
+
+/* GRID LAYOUT */
+.layout2{display:grid;grid-template-columns:1fr 320px;gap:16px;align-items:start;}
+.layout3{display:grid;grid-template-columns:1fr 1fr 300px;gap:16px;align-items:start;}
+
+/* BADGES DE ESTADO */
+.badge{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:100px;font-family:var(--mono);font-size:8px;letter-spacing:1px;font-weight:500;text-transform:uppercase;}
+.badge::before{content:'';width:5px;height:5px;border-radius:50%;}
+.b-on {background:var(--g2);color:var(--g);}
+.b-on::before{background:var(--g);animation:pulso 1.5s infinite;box-shadow:0 0 4px var(--g);}
+.b-wait{background:var(--y2);color:var(--y);}
+.b-wait::before{background:var(--y);animation:pulso 2.5s infinite;}
+.b-off {background:rgba(107,114,128,.12);color:var(--txt2);}
+.b-off::before{background:var(--txt2);}
+.b-err {background:var(--r2);color:var(--r);}
+.b-err::before{background:var(--r);}
+.b-pend{background:var(--b2c);color:var(--b);}
+.b-pend::before{background:var(--b);}
+
+/* TABLA DE LEADS */
+.tabla{width:100%;border-collapse:collapse;}
+.tabla th{
+  font-family:var(--mono);font-size:8px;letter-spacing:1.5px;
+  text-transform:uppercase;color:var(--txt2);
+  padding:10px 14px;text-align:left;
+  border-bottom:1px solid var(--b1);
+}
+.tabla td{padding:11px 14px;border-bottom:1px solid var(--b1);font-size:12px;vertical-align:middle;}
+.tabla tr:last-child td{border-bottom:none;}
+.tabla tr:hover td{background:rgba(255,255,255,.015);}
+.score-chip{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:28px;height:28px;border-radius:6px;
+  font-family:var(--mono);font-size:11px;font-weight:700;
+}
+.sc-hi{background:var(--g2);color:var(--g);}
+.sc-me{background:var(--y2);color:var(--y);}
+.sc-lo{background:rgba(107,114,128,.12);color:var(--txt2);}
+.avatar-chip{
+  width:30px;height:30px;border-radius:7px;
+  background:var(--s3);border:1px solid var(--b2);
+  display:inline-flex;align-items:center;justify-content:center;
+  font-family:var(--display);font-size:12px;color:var(--txt2);
+}
+.tag{display:inline-flex;align-items:center;padding:2px 7px;border-radius:4px;font-family:var(--mono);font-size:9px;}
+.tag-g{background:var(--g2);color:var(--g);}
+.tag-b{background:var(--b2c);color:var(--b);}
+.tag-a{background:var(--a2);color:var(--a);}
+.tag-y{background:var(--y2);color:var(--y);}
+
+/* LOG */
+.log-lista{display:flex;flex-direction:column;gap:2px;max-height:220px;overflow-y:auto;padding:12px 16px;}
+.log-lista::-webkit-scrollbar{width:3px;}
+.log-lista::-webkit-scrollbar-thumb{background:var(--b2);border-radius:3px;}
+.log-row{display:flex;align-items:flex-start;gap:8px;padding:5px 0;border-bottom:1px solid var(--b1);}
+.log-row:last-child{border-bottom:none;}
+.log-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:4px;}
+.log-txt{font-family:var(--mono);font-size:10px;line-height:1.4;flex:1;}
+.log-ts{font-family:var(--mono);font-size:9px;color:var(--txt2);flex-shrink:0;padding-top:1px;}
+
+/* FLUJO PASOS */
+.flujo{display:flex;flex-direction:column;}
+.paso-item{display:flex;align-items:flex-start;gap:12px;padding:12px 0;position:relative;}
+.paso-item:not(:last-child)::after{content:'';position:absolute;left:13px;top:40px;width:1px;bottom:-12px;background:var(--b1);}
+.paso-num{
+  width:28px;height:28px;border-radius:7px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:11px;font-weight:700;
+  flex-shrink:0;z-index:1;
+}
+.p-done{background:rgba(0,255,136,.15);color:var(--g);}
+.p-now {background:rgba(77,158,255,.15);color:var(--b);box-shadow:0 0 12px rgba(77,158,255,.2);}
+.p-todo{background:var(--s3);color:var(--txt2);}
+.paso-info{padding-top:4px;}
+.paso-nom{font-size:12px;font-weight:600;margin-bottom:2px;}
+.paso-sub{font-family:var(--mono);font-size:9px;color:var(--txt2);}
+
+/* AGENTE CARD EN GRID */
+.agente-card{
+  background:var(--s2);border:1px solid var(--b1);
+  border-radius:12px;padding:18px;
+  cursor:pointer;transition:all .18s;
+  display:flex;flex-direction:column;gap:12px;
+}
+.agente-card:hover{border-color:var(--b2);transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,.4);}
+.agente-card.sel{border-color:rgba(0,255,136,.2);background:var(--g3);}
+.ac-top{display:flex;align-items:center;justify-content:space-between;}
+.ac-ico{font-size:26px;}
+.ac-body{display:flex;flex-direction:column;gap:4px;}
+.ac-nom{font-size:15px;font-weight:700;}
+.ac-desc{font-family:var(--mono);font-size:9px;color:var(--txt2);}
+.ac-stat{font-family:var(--mono);font-size:10px;color:var(--txt2);}
+.ac-prog{height:2px;background:var(--b1);border-radius:2px;overflow:hidden;margin-top:4px;}
+.ac-prog-fill{height:100%;border-radius:2px;transition:width 1s ease;}
+
+/* TOAST */
+#toast-container{
+  position:fixed;bottom:24px;right:24px;
+  display:flex;flex-direction:column;gap:8px;z-index:9000;
+}
+.toast{
+  background:var(--s2);border:1px solid var(--b2);
+  border-radius:8px;padding:12px 16px;
+  font-family:var(--mono);font-size:11px;
+  display:flex;align-items:center;gap:10px;
+  animation:toastIn .3s ease;min-width:280px;max-width:360px;
+  box-shadow:0 8px 32px rgba(0,0,0,.5);
+}
+.toast.t-ok  {border-color:rgba(0,255,136,.25);}
+.toast.t-err {border-color:rgba(248,113,113,.25);}
+.toast.t-info{border-color:rgba(77,158,255,.25);}
+@keyframes toastIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+.toast-icon{font-size:14px;flex-shrink:0;}
+.toast-txt{color:var(--txt);}
+
+/* MODAL */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.7);
+  backdrop-filter:blur(4px);z-index:8000;
+  display:none;align-items:center;justify-content:center;
+}
+.modal-overlay.open{display:flex;}
+.modal{
+  background:var(--s1);border:1px solid var(--b2);
+  border-radius:16px;padding:28px;min-width:420px;max-width:580px;
+  animation:modalIn .2s ease;
+}
+@keyframes modalIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
+.modal-tit{font-family:var(--display);font-size:28px;letter-spacing:1px;margin-bottom:6px;}
+.modal-sub{font-family:var(--mono);font-size:10px;color:var(--txt2);margin-bottom:20px;}
+.modal-form{display:flex;flex-direction:column;gap:12px;}
+.form-group{display:flex;flex-direction:column;gap:5px;}
+.form-lbl{font-family:var(--mono);font-size:9px;letter-spacing:1px;color:var(--txt2);text-transform:uppercase;}
+.form-input,.form-select{
+  background:var(--s2);border:1px solid var(--b2);
+  border-radius:7px;padding:9px 12px;
+  color:var(--txt);font-family:var(--mono);font-size:12px;
+  outline:none;transition:border-color .15s;width:100%;
+}
+.form-input:focus,.form-select:focus{border-color:rgba(0,255,136,.3);}
+.form-select option{background:var(--s2);}
+.modal-footer{display:flex;justify-content:flex-end;gap:8px;margin-top:20px;}
+
+/* PROGRESS BAR */
+.prog-bar{height:6px;background:var(--b1);border-radius:6px;overflow:hidden;margin:8px 0;}
+.prog-fill{height:100%;border-radius:6px;transition:width 1.5s ease;}
+.pf-g{background:linear-gradient(90deg,var(--g),#00cc66);}
+.pf-b{background:linear-gradient(90deg,var(--b),#2d7dd2);}
+.pf-a{background:linear-gradient(90deg,var(--a),#e55a2b);}
+
+/* TABS */
+.tabs{display:flex;gap:2px;background:var(--s2);border-radius:8px;padding:3px;margin-bottom:16px;}
+.tab{
+  padding:7px 14px;border-radius:6px;
+  font-family:var(--mono);font-size:10px;letter-spacing:.3px;
+  cursor:pointer;color:var(--txt2);transition:all .15s;
+}
+.tab.activo{background:var(--s1);color:var(--txt);border:1px solid var(--b2);}
+
+/* SUBLANDING AGENTE */
+.ag-hero{
+  background:var(--s1);border:1px solid var(--b1);
+  border-radius:16px;padding:28px;margin-bottom:16px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:relative;overflow:hidden;
+}
+.ag-hero::before{
+  content:'';position:absolute;right:-60px;top:-60px;
+  width:240px;height:240px;border-radius:50%;
+  opacity:.04;
+}
+.ag-hero.hero-g::before{background:var(--g);}
+.ag-hero.hero-b::before{background:var(--b);}
+.ag-hero.hero-a::before{background:var(--a);}
+.ag-hero.hero-p::before{background:var(--p);}
+.ag-hero.hero-y::before{background:var(--y);}
+.hero-l{display:flex;flex-direction:column;gap:6px;}
+.hero-ico{font-size:40px;margin-bottom:8px;}
+.hero-nom{font-family:var(--display);font-size:48px;letter-spacing:2px;color:#fff;line-height:1;}
+.hero-desc{font-family:var(--mono);font-size:11px;color:var(--txt2);}
+.hero-acciones{display:flex;flex-direction:column;gap:8px;align-items:flex-end;}
+
+/* CONFIGURACIÓN PANEL */
+.config-fila{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 0;border-bottom:1px solid var(--b1);
+}
+.config-fila:last-child{border-bottom:none;}
+.config-k{font-size:13px;font-weight:500;}
+.config-v{font-family:var(--mono);font-size:10px;color:var(--txt2);}
+.config-val{font-family:var(--mono);font-size:11px;color:var(--g);}
+
+/* TOGGLE */
+.toggle{
+  width:36px;height:20px;background:var(--b2);border-radius:10px;
+  cursor:pointer;position:relative;transition:background .2s;flex-shrink:0;
+}
+.toggle.on{background:var(--g);}
+.toggle::after{
+  content:'';position:absolute;top:2px;left:2px;
+  width:16px;height:16px;border-radius:50%;background:#fff;
+  transition:transform .2s;
+}
+.toggle.on::after{transform:translateX(16px);}
+
+/* CHART */
+.sparkline{height:48px;display:flex;align-items:flex-end;gap:3px;padding:0 2px;}
+.spark-bar{
+  flex:1;border-radius:3px 3px 0 0;
+  background:linear-gradient(180deg,rgba(0,255,136,.4),rgba(0,255,136,.1));
+  transition:height .5s ease;min-height:4px;
+}
+
+/* ANIMACIONES ENTRADA */
+.fade-in{animation:fadeIn .4s ease forwards;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.d1{animation-delay:.04s}.d2{animation-delay:.08s}.d3{animation-delay:.12s}
+.d4{animation-delay:.16s}.d5{animation-delay:.2s}.d6{animation-delay:.24s}
+</style>
+</head>
+<body>
+
+<!-- TOAST -->
+<div id="toast-container"></div>
+
+<!-- MODAL NUEVO CICLO -->
+<div class="modal-overlay" id="modal-ciclo">
+  <div class="modal">
+    <div class="modal-tit">NUEVO CICLO</div>
+    <div class="modal-sub">Configura los parámetros del agente de scraping</div>
+    <div class="modal-form">
+      <div class="form-group">
+        <label class="form-lbl">Objetivo / nicho</label>
+        <input class="form-input" id="m-objetivo" value="inmobiliarias Valencia España" placeholder="ej: CTOs SaaS Madrid">
+      </div>
+      <div class="form-group">
+        <label class="form-lbl">Fuente</label>
+        <select class="form-select" id="m-fuente">
+          <option value="google_maps">Google Maps</option>
+          <option value="linkedin">LinkedIn</option>
+          <option value="product_hunt">Product Hunt</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-lbl">Límite de leads</label>
+        <input class="form-input" id="m-limite" type="number" value="100" min="10" max="500">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-sec" onclick="cerrarModal()">Cancelar</button>
+      <button class="btn btn-pri" onclick="lanzarCiclo()">▶ Lanzar ciclo</button>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <nav>
+    <div class="nav-logo">
+      <div class="logo-hex">⬡</div>
+      <div>
+        <div class="logo-txt">ORBITA</div>
+        <div class="logo-ver">OS v0.2.0</div>
+      </div>
+    </div>
+
+    <div class="nav-section">Principal</div>
+    <div class="nav-item activo" onclick="navegar('inicio')">
+      <span class="nav-icon">⬡</span> Centro de control
+      <span class="nav-badge nb-g">2 activos</span>
+    </div>
+    <div class="nav-item" onclick="navegar('leads')">
+      <span class="nav-icon">🎯</span> Base de leads
+      <span class="nav-badge nb-g">91</span>
+    </div>
+
+    <div class="nav-section">Agentes</div>
+    <div class="nav-item" onclick="navegar('ag-scraping')">
+      <span class="nav-icon">🔍</span> Scraping
+      <span class="nav-badge nb-g">ON</span>
+    </div>
+    <div class="nav-item" onclick="navegar('ag-enriquecimiento')">
+      <span class="nav-icon">✉️</span> Enriquecimiento
+      <span class="nav-badge nb-y">PEND</span>
+    </div>
+    <div class="nav-item" onclick="navegar('ag-pm')">
+      <span class="nav-icon">📋</span> PM
+      <span class="nav-badge nb-a">ESP</span>
+    </div>
+    <div class="nav-item" onclick="navegar('ag-dev')">
+      <span class="nav-icon">💻</span> Dev
+      <span class="nav-badge nb-g">ON</span>
+    </div>
+    <div class="nav-item" onclick="navegar('ag-docs')">
+      <span class="nav-icon">📝</span> Docs
+    </div>
+
+    <div class="nav-section">Sistema</div>
+    <div class="nav-item" onclick="navegar('config')">
+      <span class="nav-icon">⚙️</span> Configuración
+    </div>
+    <div class="nav-item" onclick="navegar('log')">
+      <span class="nav-icon">📊</span> Log del sistema
+    </div>
+
+    <div class="nav-footer">
+      <div class="sys-status">
+        <div class="sys-dot"></div>
+        Sistema operativo
+      </div>
+      <div style="font-family:var(--mono);font-size:9px;color:var(--txt3);margin-top:4px;">Valencia, España</div>
+    </div>
+  </nav>
+
+  <!-- PANEL DERECHO -->
+  <div style="flex:1;display:flex;flex-direction:column;overflow:hidden;">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div class="topbar-left">
+        <span>Orbita OS</span>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-cur" id="breadcrumb">Centro de control</span>
+      </div>
+      <div class="topbar-right">
+        <div class="reloj-top" id="reloj">--:--:--</div>
+        <button class="btn-lanzar-top" onclick="abrirModal()">▶ Nuevo ciclo</button>
+      </div>
+    </div>
+
+    <!-- CONTENIDO -->
+    <div class="content">
+
+      <!-- ══════════════════════════════════════ INICIO ══ -->
+      <div class="page visible" id="p-inicio">
+        <div class="ph fade-in">
+          <div class="ph-top">
+            <div>
+              <div class="ph-titulo">CENTRO DE CONTROL</div>
+              <div class="ph-sub">// orbita agent os · valencia, españa · ciclo #1 completado</div>
+            </div>
+            <div class="ph-acciones">
+              <button class="btn btn-sec" onclick="navegar('log')">📊 Ver log</button>
+              <button class="btn btn-pri" onclick="abrirModal()">▶ Lanzar ciclo</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Métricas -->
+        <div class="grid-met g5 fade-in d1">
+          <div class="met cg"><div class="met-lbl">Leads hoy</div><div class="met-val" data-cnt="91">0</div><div class="met-sub">↑ Valencia inmobiliarias</div></div>
+          <div class="met cb"><div class="met-lbl">Cualificados</div><div class="met-val" data-cnt="67">0</div><div class="met-sub">Puntuación ≥ 5</div></div>
+          <div class="met cy"><div class="met-lbl">Sin email</div><div class="met-val" data-cnt="91">0</div><div class="met-sub">Enriquecimiento pdte.</div></div>
+          <div class="met cp"><div class="met-lbl">Agentes ON</div><div class="met-val" data-cnt="2">0</div><div class="met-sub">De 5 configurados</div></div>
+          <div class="met cr"><div class="met-lbl">Errores</div><div class="met-val" data-cnt="1">0</div><div class="met-sub">País corregido</div></div>
+        </div>
+
+        <!-- Layout 3 cols -->
+        <div class="layout3 fade-in d2">
+
+          <!-- Col 1: Agentes grid -->
+          <div>
+            <div class="panel">
+              <div class="panel-h">
+                <span class="panel-tit">⬡ Agentes desplegados</span>
+                <span class="panel-tag">5 configurados</span>
+              </div>
+              <div class="panel-body" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                <div class="agente-card" onclick="navegar('ag-scraping')">
+                  <div class="ac-top"><span class="ac-ico">🔍</span><span class="badge b-on">Activo</span></div>
+                  <div class="ac-body"><div class="ac-nom">Scraping</div><div class="ac-desc">Apify · Google Maps</div></div>
+                  <div><div class="ac-stat">91 leads extraídos</div><div class="ac-prog"><div class="ac-prog-fill" style="width:100%;background:var(--g);box-shadow:0 0 6px var(--g);"></div></div></div>
+                </div>
+                <div class="agente-card" onclick="navegar('ag-enriquecimiento')">
+                  <div class="ac-top"><span class="ac-ico">✉️</span><span class="badge b-wait">Pendiente</span></div>
+                  <div class="ac-body"><div class="ac-nom">Enriquecimiento</div><div class="ac-desc">Hunter.io · Emails</div></div>
+                  <div><div class="ac-stat">0 emails obtenidos</div></div>
+                </div>
+                <div class="agente-card" onclick="navegar('ag-pm')">
+                  <div class="ac-top"><span class="ac-ico">📋</span><span class="badge b-wait">Esperando</span></div>
+                  <div class="ac-body"><div class="ac-nom">PM</div><div class="ac-desc">Valida y prioriza</div></div>
+                  <div><div class="ac-stat">0 tickets creados</div></div>
+                </div>
+                <div class="agente-card" onclick="navegar('ag-dev')">
+                  <div class="ac-top"><span class="ac-ico">💻</span><span class="badge b-on">Activo</span></div>
+                  <div class="ac-body"><div class="ac-nom">Dev</div><div class="ac-desc">Claude Code</div></div>
+                  <div><div class="ac-stat">2 PRs abiertos</div><div class="ac-prog"><div class="ac-prog-fill" style="width:55%;background:var(--b);"></div></div></div>
+                </div>
+                <div class="agente-card" onclick="navegar('ag-docs')">
+                  <div class="ac-top"><span class="ac-ico">📝</span><span class="badge b-off">Parado</span></div>
+                  <div class="ac-body"><div class="ac-nom">Docs</div><div class="ac-desc">Documentación auto</div></div>
+                  <div><div class="ac-stat">—</div></div>
+                </div>
+                <div class="agente-card" onclick="toast('info','Próximamente: Agente de contacto automático')">
+                  <div class="ac-top"><span class="ac-ico">📧</span><span class="badge b-pend">Próximo</span></div>
+                  <div class="ac-body"><div class="ac-nom">Outreach</div><div class="ac-desc">Email personalizado IA</div></div>
+                  <div><div class="ac-stat">Sin configurar</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Col 2: Leads recientes -->
+          <div>
+            <div class="panel">
+              <div class="panel-h">
+                <span class="panel-tit">🎯 Leads recientes</span>
+                <button class="btn btn-sec btn-sm" onclick="navegar('leads')">Ver todos →</button>
+              </div>
+              <div class="panel-body-0">
+                <table class="tabla" id="tabla-recientes"></table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Col 3: Sidebar -->
+          <div style="display:flex;flex-direction:column;gap:14px;">
+
+            <!-- Orquestador -->
+            <div class="panel">
+              <div class="panel-h">
+                <span class="panel-tit">⬡ Orquestador</span>
+                <span class="badge b-on">Activo</span>
+              </div>
+              <div class="panel-body">
+                <div class="flujo">
+                  <div class="paso-item"><div class="paso-num p-done">✓</div><div class="paso-info"><div class="paso-nom">Scraping</div><div class="paso-sub">91 leads · Valencia ✓</div></div></div>
+                  <div class="paso-item"><div class="paso-num p-now">2</div><div class="paso-info"><div class="paso-nom">Enriquecimiento</div><div class="paso-sub">Hunter.io · Pdte. configurar</div></div></div>
+                  <div class="paso-item"><div class="paso-num p-todo">3</div><div class="paso-info"><div class="paso-nom">Guardado Notion</div><div class="paso-sub">Conectar integración</div></div></div>
+                  <div class="paso-item"><div class="paso-num p-todo">4</div><div class="paso-info"><div class="paso-nom">Contacto IA</div><div class="paso-sub">Email personalizado</div></div></div>
+                </div>
+                <button class="btn btn-pri" style="width:100%;margin-top:14px;" onclick="abrirModal()">▶ Nuevo ciclo</button>
+              </div>
+            </div>
+
+            <!-- Log -->
+            <div class="panel">
+              <div class="panel-h">
+                <span class="panel-tit">Log en vivo</span>
+                <button class="btn btn-sec btn-sm" onclick="navegar('log')">Expandir</button>
+              </div>
+              <div class="log-lista" id="log-mini"></div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════ LEADS ══ -->
+      <div class="page" id="p-leads">
+        <div class="ph fade-in">
+          <div class="ph-top">
+            <div><div class="ph-titulo">BASE DE LEADS</div><div class="ph-sub">// 91 leads · inmobiliarias valencia · ciclo #1</div></div>
+            <div class="ph-acciones">
+              <button class="btn btn-sec" onclick="exportarCSV()">⬇ Exportar CSV</button>
+              <button class="btn btn-pri" onclick="abrirModal()">▶ Nuevo scraping</button>
+            </div>
+          </div>
+        </div>
+        <div class="grid-met g4 fade-in d1">
+          <div class="met cg"><div class="met-lbl">Total leads</div><div class="met-val">91</div><div class="met-sub">Ciclo #1</div></div>
+          <div class="met cy"><div class="met-lbl">Sin email</div><div class="met-val">91</div><div class="met-sub">Pdte. enriquecimiento</div></div>
+          <div class="met cb"><div class="met-lbl">Score medio</div><div class="met-val">6.8</div><div class="met-sub">Sobre 10</div></div>
+          <div class="met cp"><div class="met-lbl">Fuente</div><div class="met-val" style="font-size:22px;">MAPS</div><div class="met-sub">Google Maps · Apify</div></div>
+        </div>
+        <div class="panel fade-in d2">
+          <div class="panel-h">
+            <span class="panel-tit">🎯 Todos los leads</span>
+            <div style="display:flex;gap:8px;">
+              <button class="btn btn-sec btn-sm" onclick="filtrarLeads('todos')">Todos</button>
+              <button class="btn btn-sec btn-sm" onclick="filtrarLeads('alto')">Score alto</button>
+              <button class="btn btn-sec btn-sm" onclick="filtrarLeads('nuevo')">Nuevos</button>
+            </div>
+          </div>
+          <div class="panel-body-0">
+            <table class="tabla" id="tabla-leads"></table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════ AGENTE SCRAPING ══ -->
+      <div class="page" id="p-ag-scraping">
+        <div class="ag-hero hero-g fade-in">
+          <div class="hero-l">
+            <div class="hero-ico">🔍</div>
+            <div class="hero-nom">AGENTE SCRAPING</div>
+            <div class="hero-desc">// Apify · Google Maps · LinkedIn · Product Hunt</div>
+            <div style="margin-top:10px;"><span class="badge b-on">Activo · Ciclo #1 completado</span></div>
+          </div>
+          <div class="hero-acciones">
+            <button class="btn btn-pri" onclick="abrirModal()">▶ Lanzar scraping</button>
+            <button class="btn btn-sec" onclick="toast('info','Ver outputs/leads_google_maps_20260312.json')">📁 Ver outputs</button>
+            <button class="btn btn-sec" onclick="toast('info','Script: python3 agent_scraping.py')">📋 Ver script</button>
+          </div>
+        </div>
+        <div class="grid-met g4 fade-in d1">
+          <div class="met cg"><div class="met-lbl">Leads extraídos</div><div class="met-val">91</div><div class="met-sub">Ciclo #1 · Hoy</div></div>
+          <div class="met cb"><div class="met-lbl">Actor Apify</div><div class="met-val" style="font-size:16px;">MAPS</div><div class="met-sub">poidata~google-maps-scraper</div></div>
+          <div class="met cy"><div class="met-lbl">Objetivo</div><div class="met-val" style="font-size:14px;">Valencia</div><div class="met-sub">Agencias inmobiliarias</div></div>
+          <div class="met cp"><div class="met-lbl">Duración</div><div class="met-val">1m 50s</div><div class="met-sub">Ciclo #1</div></div>
+        </div>
+        <div class="layout2 fade-in d2">
+          <div>
+            <div class="panel">
+              <div class="panel-h"><span class="panel-tit">⚙️ Configuración del agente</span><span class="badge b-on">Activo</span></div>
+              <div class="panel-body">
+                <div class="config-fila"><div><div class="config-k">Fuente principal</div><div class="config-v">Actor de Apify para scraping</div></div><span class="tag tag-b">Google Maps</span></div>
+                <div class="config-fila"><div><div class="config-k">Objetivo actual</div><div class="config-v">Término de búsqueda</div></div><span class="config-val">inmobiliarias Valencia</span></div>
+                <div class="config-fila"><div><div class="config-k">Límite por ciclo</div><div class="config-v">Máximo de leads a extraer</div></div><span class="config-val">100</span></div>
+                <div class="config-fila"><div><div class="config-k">País / Idioma</div><div class="config-v">Filtro geográfico</div></div><span class="config-val">ES / Español</span></div>
+                <div class="config-fila"><div><div class="config-k">Puntuación mínima</div><div class="config-v">Umbral de calidad</div></div><span class="config-val">2 / 10</span></div>
+                <div class="config-fila"><div><div class="config-k">Guardar en Notion</div><div class="config-v">Sincronización automática</div></div><div class="toggle on" onclick="this.classList.toggle('on');toast('ok','Sincronización con Notion actualizada')"></div></div>
+                <div class="config-fila"><div><div class="config-k">Modo dry-run</div><div class="config-v">No guarda, solo muestra</div></div><div class="toggle" onclick="this.classList.toggle('on');toast('info','Modo dry-run ' + (this.classList.contains('on')?'activado':'desactivado'))"></div></div>
+              </div>
+            </div>
+            <div class="panel" style="margin-top:14px;">
+              <div class="panel-h"><span class="panel-tit">📈 Histórico de ciclos</span></div>
+              <div class="panel-body">
+                <table class="tabla">
+                  <tr><th>Ciclo</th><th>Fecha</th><th>Objetivo</th><th>Leads</th><th>Estado</th></tr>
+                  <tr><td>#1</td><td style="font-family:var(--mono);font-size:10px;">12/03/2026</td><td>Inmobiliarias Valencia</td><td><span class="tag tag-g">91</span></td><td><span class="badge b-on">OK</span></td></tr>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="panel">
+              <div class="panel-h"><span class="panel-tit">▶ Lanzar nuevo ciclo</span></div>
+              <div class="panel-body">
+                <div class="form-group" style="margin-bottom:10px;"><label class="form-lbl">Objetivo</label><input class="form-input" value="inmobiliarias Valencia España" id="s-obj"></div>
+                <div class="form-group" style="margin-bottom:10px;"><label class="form-lbl">Fuente</label><select class="form-select" id="s-src"><option>Google Maps</option><option>LinkedIn</option><option>Product Hunt</option></select></div>
+                <div class="form-group" style="margin-bottom:14px;"><label class="form-lbl">Límite</label><input class="form-input" type="number" value="100" id="s-lim"></div>
+                <button class="btn btn-pri" style="width:100%;" onclick="lanzarCiclo()">▶ Ejecutar scraping</button>
+                <div style="margin-top:8px;font-family:var(--mono);font-size:9px;color:var(--txt2);">Comando equivalente:</div>
+                <div style="background:var(--s3);border-radius:6px;padding:10px;margin-top:6px;font-family:var(--mono);font-size:9px;color:var(--g);overflow-x:auto;" id="cmd-preview">python3 agent_scraping.py --fuente google_maps --objetivo "inmobiliarias Valencia España" --limite 100</div>
+              </div>
+            </div>
+            <div class="panel" style="margin-top:14px;">
+              <div class="panel-h"><span class="panel-tit">📊 Leads por puntuación</span></div>
+              <div class="panel-body">
+                <div style="display:flex;flex-direction:column;gap:8px;">
+                  <div><div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;margin-bottom:4px;"><span style="color:var(--g);">Score 8-10</span><span>18 leads</span></div><div class="prog-bar"><div class="prog-fill pf-g" style="width:20%"></div></div></div>
+                  <div><div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;margin-bottom:4px;"><span style="color:var(--y);">Score 5-7</span><span>49 leads</span></div><div class="prog-bar"><div class="prog-fill" style="width:54%;background:var(--y);"></div></div></div>
+                  <div><div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;margin-bottom:4px;"><span style="color:var(--txt2);">Score 0-4</span><span>24 leads</span></div><div class="prog-bar"><div class="prog-fill" style="width:26%;background:var(--txt2);"></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════ AGENTE ENRIQUECIMIENTO ══ -->
+      <div class="page" id="p-ag-enriquecimiento">
+        <div class="ag-hero hero-b fade-in">
+          <div class="hero-l">
+            <div class="hero-ico">✉️</div>
+            <div class="hero-nom">ENRIQUECIMIENTO</div>
+            <div class="hero-desc">// Hunter.io · Apollo.io · Encuentra emails de leads</div>
+            <div style="margin-top:10px;"><span class="badge b-wait">Pendiente de configurar</span></div>
+          </div>
+          <div class="hero-acciones">
+            <button class="btn btn-pri" onclick="toast('info','Configura HUNTER_API_KEY en tu .env primero')">⚡ Activar agente</button>
+            <button class="btn btn-sec" onclick="toast('info','Ve a hunter.io y obtén tu API key gratuita')">🔑 Obtener API key</button>
+          </div>
+        </div>
+        <div class="grid-met g3 fade-in d1">
+          <div class="met cy"><div class="met-lbl">Leads sin email</div><div class="met-val">91</div><div class="met-sub">Todos necesitan enriquecimiento</div></div>
+          <div class="met cb"><div class="met-lbl">Tasa estimada</div><div class="met-val">~60%</div><div class="met-sub">Emails encontrables</div></div>
+          <div class="met cg"><div class="met-lbl">Emails esperados</div><div class="met-val">~54</div><div class="met-sub">Con Hunter.io gratuito</div></div>
+        </div>
+        <div class="layout2 fade-in d2">
+          <div>
+            <div class="panel">
+              <div class="panel-h"><span class="panel-tit">⚙️ Configurar Hunter.io</span><span class="badge b-err">Sin configurar</span></div>
+              <div class="panel-body">
+                <div style="background:var(--y2);border:1px solid rgba(251,191,36,.2);border-radius:8px;padding:14px;margin-bottom:16px;font-family:var(--mono);font-size:10px;color:var(--y);">
+                  ⚠️ Añade HUNTER_API_KEY a tu .env para activar este agente. Obtén 25 búsquedas/mes gratis en hunter.io
+                </div>
+                <div class="config-fila"><div><div class="config-k">Hunter.io API Key</div><div class="config-v">Obtener en hunter.io/api-keys</div></div><span class="badge b-err">No configurada</span></div>
+                <div class="config-fila"><div><div class="config-k">Modo de búsqueda</div><div class="config-v">Cómo buscar emails</div></div><span class="tag tag-b">Dominio + nombre</span></div>
+                <div class="config-fila"><div><div class="config-k">Confianza mínima</div><div class="config-v">Score de Hunter.io</div></div><span class="config-val">70%</span></div>
+                <div class="config-fila"><div><div class="config-k">Guardar en Notion</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+                <div style="margin-top:16px;background:var(--s3);border-radius:8px;padding:12px;font-family:var(--mono);font-size:9px;color:var(--g);">
+                  # Añade esto a tu .env<br>HUNTER_API_KEY=tu_key_aqui<br><br># Luego ejecuta:<br>python3 agent_enrichment.py --fuente outputs/leads_google_maps_*.json
+                </div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="panel">
+              <div class="panel-h"><span class="panel-tit">📖 Cómo funciona</span></div>
+              <div class="panel-body">
+                <div class="flujo">
+                  <div class="paso-item"><div class="paso-num p-done">1</div><div class="paso-info"><div class="paso-nom">Lee leads de Notion</div><div class="paso-sub">Los 91 leads sin email</div></div></div>
+                  <div class="paso-item"><div class="paso-num p-todo">2</div><div class="paso-info"><div class="paso-nom">Busca el dominio web</div><div class="paso-sub">Extrae dominio del campo Web</div></div></div>
+                  <div class="paso-item"><div class="paso-num p-todo">3</div><div class="paso-info"><div class="paso-nom">Consulta Hunter.io</div><div class="paso-sub">Busca emails del dominio</div></div></div>
+                  <div class="paso-item"><div class="paso-num p-todo">4</div><div class="paso-info"><div class="paso-nom">Actualiza Notion</div><div class="paso-sub">Guarda email + confianza</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════ AGENTE PM ══ -->
+      <div class="page" id="p-ag-pm">
+        <div class="ag-hero hero-a fade-in">
+          <div class="hero-l">
+            <div class="hero-ico">📋</div>
+            <div class="hero-nom">AGENTE PM</div>
+            <div class="hero-desc">// Valida, prioriza y crea tickets de leads cualificados</div>
+            <div style="margin-top:10px;"><span class="badge b-wait">Esperando leads enriquecidos</span></div>
+          </div>
+          <div class="hero-acciones">
+            <button class="btn btn-pri" onclick="toast('info','Esperando leads con email del agente de enriquecimiento')">▶ Activar cuando haya emails</button>
+            <button class="btn btn-sec" onclick="toast('info','Los tickets aparecerán en tu Notion automáticamente')">📋 Ver tickets</button>
+          </div>
+        </div>
+        <div class="grid-met g3 fade-in d1">
+          <div class="met cg"><div class="met-lbl">Leads cualificados</div><div class="met-val">67</div><div class="met-sub">Score ≥ 5/10</div></div>
+          <div class="met ca"><div class="met-lbl">Tickets creados</div><div class="met-val">0</div><div class="met-sub">Pendiente activar</div></div>
+          <div class="met cb"><div class="met-lbl">Criterio prioridad</div><div class="met-val" style="font-size:18px;">Score IA</div><div class="met-sub">+ Web + Teléfono</div></div>
+        </div>
+        <div class="panel fade-in d2">
+          <div class="panel-h"><span class="panel-tit">⚙️ Criterios de cualificación</span></div>
+          <div class="panel-body">
+            <div class="config-fila"><div><div class="config-k">Puntuación mínima para ticket</div></div><span class="config-val">5 / 10</span></div>
+            <div class="config-fila"><div><div class="config-k">Requiere email</div><div class="config-v">Solo ticketea si tiene email</div></div><div class="toggle" onclick="this.classList.toggle('on');toast('info','Criterio actualizado')"></div></div>
+            <div class="config-fila"><div><div class="config-k">Requiere web</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+            <div class="config-fila"><div><div class="config-k">Prioridad por sector</div></div><span class="tag tag-a">Inmobiliaria</span></div>
+            <div class="config-fila"><div><div class="config-k">Destino de tickets</div></div><span class="tag tag-b">Notion</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════ AGENTE DEV ══ -->
+      <div class="page" id="p-ag-dev">
+        <div class="ag-hero hero-p fade-in">
+          <div class="hero-l">
+            <div class="hero-ico">💻</div>
+            <div class="hero-nom">AGENTE DEV</div>
+            <div class="hero-desc">// Claude Code · Escribe, refactoriza y hace commit de código</div>
+            <div style="margin-top:10px;"><span class="badge b-on">Activo · 2 PRs en curso</span></div>
+          </div>
+          <div class="hero-acciones">
+            <button class="btn btn-pri" onclick="toast('info','Ejecuta: claude en tu carpeta orbita-agents/')">▶ Abrir Claude Code</button>
+            <button class="btn btn-sec" onclick="toast('info','PR #47: Módulo auth JWT · PR #48: Rutas protegidas')">🔀 Ver PRs</button>
+          </div>
+        </div>
+        <div class="grid-met g4 fade-in d1">
+          <div class="met cp"><div class="met-lbl">PRs abiertos</div><div class="met-val">2</div><div class="met-sub">Auth JWT + Rutas</div></div>
+          <div class="met cg"><div class="met-lbl">Commits hoy</div><div class="met-val">3</div><div class="met-sub">Último: hace 12 min</div></div>
+          <div class="met cb"><div class="met-lbl">Tests OK</div><div class="met-val">47</div><div class="met-sub">0 fallos</div></div>
+          <div class="met cy"><div class="met-lbl">Coverage</div><div class="met-val">78%</div><div class="met-sub">Objetivo: 80%</div></div>
+        </div>
+        <div class="layout2 fade-in d2">
+          <div>
+            <div class="panel">
+              <div class="panel-h"><span class="panel-tit">🔀 Pull Requests activos</span></div>
+              <div class="panel-body">
+                <table class="tabla">
+                  <tr><th>PR</th><th>Descripción</th><th>Estado</th><th>Tests</th></tr>
+                  <tr><td><span class="tag tag-b">#47</span></td><td>Módulo autenticación JWT</td><td><span class="badge b-on">En revisión</span></td><td><span style="color:var(--g);font-family:var(--mono);font-size:10px;">✓ 23/23</span></td></tr>
+                  <tr><td><span class="tag tag-b">#48</span></td><td>Rutas protegidas middleware</td><td><span class="badge b-wait">WIP</span></td><td><span style="color:var(--y);font-family:var(--mono);font-size:10px;">⏳ 24/47</span></td></tr>
+                </table>
+              </div>
+            </div>
+            <div class="panel" style="margin-top:14px;">
+              <div class="panel-h"><span class="panel-tit">📊 Progreso PR #48</span></div>
+              <div class="panel-body">
+                <div style="font-family:var(--mono);font-size:10px;color:var(--txt2);margin-bottom:6px;">Tests completados: 24 / 47</div>
+                <div class="prog-bar"><div class="prog-fill pf-b" style="width:51%"></div></div>
+                <div style="font-family:var(--mono);font-size:9px;color:var(--txt2);margin-top:6px;">Claude Code · Módulo auth · Commit #48</div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="panel">
+              <div class="panel-h"><span class="panel-tit">💬 Instrucciones para Claude Code</span></div>
+              <div class="panel-body">
+                <div style="font-family:var(--mono);font-size:9px;color:var(--txt2);margin-bottom:10px;">Ejecuta <span style="color:var(--g);">claude</span> en tu carpeta y usa estos comandos:</div>
+                <div style="display:flex;flex-direction:column;gap:6px;">
+                  <div style="background:var(--s3);border-radius:6px;padding:10px;font-family:var(--mono);font-size:10px;color:var(--g);">finish implementing the JWT auth module and run all tests</div>
+                  <div style="background:var(--s3);border-radius:6px;padding:10px;font-family:var(--mono);font-size:10px;color:var(--g);">review PR #47 and check for security issues</div>
+                  <div style="background:var(--s3);border-radius:6px;padding:10px;font-family:var(--mono);font-size:10px;color:var(--g);">add route protection middleware for all /api/* routes</div>
+                </div>
+                <button class="btn btn-sec" style="width:100%;margin-top:12px;" onclick="toast('info','Abre la terminal VSCode y ejecuta: claude')">📋 Copiar comando</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════ AGENTE DOCS ══ -->
+      <div class="page" id="p-ag-docs">
+        <div class="ag-hero hero-y fade-in">
+          <div class="hero-l">
+            <div class="hero-ico">📝</div>
+            <div class="hero-nom">AGENTE DOCS</div>
+            <div class="hero-desc">// Genera README, changelogs y documentación técnica automática</div>
+            <div style="margin-top:10px;"><span class="badge b-off">Parado · En espera de PR aprobado</span></div>
+          </div>
+          <div class="hero-acciones">
+            <button class="btn btn-pri" onclick="toast('info','El agente se activa automáticamente cuando se aprueba un PR')">⚡ Activar manualmente</button>
+          </div>
+        </div>
+        <div class="panel fade-in d1">
+          <div class="panel-h"><span class="panel-tit">⚙️ Configuración</span><span class="badge b-off">Parado</span></div>
+          <div class="panel-body">
+            <div class="config-fila"><div><div class="config-k">Trigger de activación</div></div><span class="tag tag-b">PR aprobado</span></div>
+            <div class="config-fila"><div><div class="config-k">Actualiza README</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+            <div class="config-fila"><div><div class="config-k">Genera changelog</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+            <div class="config-fila"><div><div class="config-k">Idioma de documentación</div></div><span class="config-val">Español</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════ CONFIG ══ -->
+      <div class="page" id="p-config">
+        <div class="ph fade-in">
+          <div class="ph-titulo">CONFIGURACIÓN</div>
+          <div class="ph-sub">// Variables de entorno y ajustes del sistema</div>
+        </div>
+        <div class="layout2 fade-in d1">
+          <div>
+            <div class="panel">
+              <div class="panel-h"><span class="panel-tit">🔑 API Keys</span><span class="badge b-on">3 / 4 configuradas</span></div>
+              <div class="panel-body">
+                <div class="config-fila"><div><div class="config-k">APIFY_API_KEY</div><div class="config-v">Para agente de scraping</div></div><span class="badge b-on">Configurada</span></div>
+                <div class="config-fila"><div><div class="config-k">ANTHROPIC_API_KEY</div><div class="config-v">Para Claude Code</div></div><span class="badge b-on">Configurada</span></div>
+                <div class="config-fila"><div><div class="config-k">NOTION_TOKEN</div><div class="config-v">Para sincronizar leads</div></div><span class="badge b-on">Configurada</span></div>
+                <div class="config-fila"><div><div class="config-k">HUNTER_API_KEY</div><div class="config-v">Para enriquecimiento</div></div><span class="badge b-err">Sin configurar</span></div>
+              </div>
+            </div>
+            <div class="panel" style="margin-top:14px;">
+              <div class="panel-h"><span class="panel-tit">🗂️ Notion</span></div>
+              <div class="panel-body">
+                <div class="config-fila"><div><div class="config-k">Base de datos leads</div><div class="config-v" style="font-size:9px;">f478bedb-64cc-4244-87a9-2de02ad59658</div></div><span class="badge b-on">OK</span></div>
+                <div class="config-fila"><div><div class="config-k">Integración conectada</div></div><button class="btn btn-sec btn-sm" onclick="toast('info','Ve a notion.so/my-integrations y conecta en la página de Orbita')">Verificar</button></div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="panel">
+              <div class="panel-h"><span class="panel-tit">⚙️ General</span></div>
+              <div class="panel-body">
+                <div class="config-fila"><div><div class="config-k">Entorno virtual Python</div></div><span class="badge b-on">Activo (venv)</span></div>
+                <div class="config-fila"><div><div class="config-k">Node.js</div></div><span class="config-val">v22.20.0</span></div>
+                <div class="config-fila"><div><div class="config-k">Python</div></div><span class="config-val">3.14.3</span></div>
+                <div class="config-fila"><div><div class="config-k">Claude Code</div></div><span class="badge b-on">Instalado</span></div>
+              </div>
+            </div>
+            <div class="panel" style="margin-top:14px;">
+              <div class="panel-h"><span class="panel-tit">🚀 Accesos directos</span></div>
+              <div class="panel-body" style="display:flex;flex-direction:column;gap:8px;">
+                <button class="btn btn-sec" style="justify-content:flex-start;" onclick="toast('info','source venv/bin/activate')">📦 Activar entorno virtual</button>
+                <button class="btn btn-sec" style="justify-content:flex-start;" onclick="abrirModal()">🔍 Lanzar scraping</button>
+                <button class="btn btn-sec" style="justify-content:flex-start;" onclick="toast('info','claude (en carpeta orbita-agents/)')">💻 Abrir Claude Code</button>
+                <button class="btn btn-sec" style="justify-content:flex-start;" onclick="toast('info','https://www.notion.so/321696f2f228815f9595ef6224bf3b60')">🗂️ Abrir Notion</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════ LOG ══ -->
+      <div class="page" id="p-log">
+        <div class="ph fade-in">
+          <div class="ph-top">
+            <div><div class="ph-titulo">LOG DEL SISTEMA</div><div class="ph-sub">// Historial completo de eventos y ejecuciones</div></div>
+            <div class="ph-acciones">
+              <button class="btn btn-sec" onclick="limpiarLog()">🗑 Limpiar</button>
+            </div>
+          </div>
+        </div>
+        <div class="panel fade-in d1">
+          <div class="panel-h"><span class="panel-tit">📊 Eventos del sistema</span><span class="panel-tag" id="log-count-full">0 eventos</span></div>
+          <div class="log-lista" id="log-full" style="max-height:600px;padding:16px 20px;"></div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════
+// DATOS
+// ══════════════════════════════════════════════════
+const LEADS = [
+  {nom:'aProperties Real Estate Valencia',tel:'961 285 965',web:'aproperties.es',ciudad:'Valencia',sector:'Inmobiliaria',score:8,estado:'Nuevo'},
+  {nom:'Tecnocasa Agencia Inmobiliaria',tel:'963 841 951',web:'valencia1.tecnocasa.es',ciudad:'Valencia',sector:'Franquicia',score:7,estado:'Nuevo'},
+  {nom:'Tempocasa Valencia',tel:'634 908 891',web:'tempocasa.es',ciudad:'Valencia',sector:'Inmobiliaria',score:7,estado:'Nuevo'},
+  {nom:'Engel & Völkers Valencia',tel:'963 112 300',web:'engelvoelkers.com',ciudad:'Valencia',sector:'Lujo',score:9,estado:'Nuevo'},
+  {nom:'Re/Max Valencia Centro',tel:'963 514 200',web:'remax.es',ciudad:'Valencia',sector:'Franquicia',score:8,estado:'Nuevo'},
+  {nom:'API Grupo Inmobiliario',tel:'963 512 233',web:'apigrupo.com',ciudad:'Valencia',sector:'Inmobiliaria',score:7,estado:'Nuevo'},
+  {nom:'Habitat Inmobiliaria',tel:'961 441 200',web:'habitatinm.com',ciudad:'Valencia',sector:'Inmobiliaria',score:6,estado:'Nuevo'},
+  {nom:'Fincas Fuertes Valencia',tel:'963 877 112',web:'fincasfuertes.com',ciudad:'Valencia',sector:'Familiar',score:6,estado:'Nuevo'},
+  {nom:'Eureka Inmobiliarios',tel:'961 902 345',web:'eurekainm.com',ciudad:'Valencia',sector:'Inmobiliaria',score:5,estado:'Nuevo'},
+  {nom:'Inmobiliaria Martinsa',tel:'963 200 100',web:'martinsa.es',ciudad:'Valencia',sector:'Inmobiliaria',score:6,estado:'Nuevo'},
+  {nom:'Century 21 Valencia',tel:'963 441 881',web:'century21.es',ciudad:'Valencia',sector:'Franquicia',score:8,estado:'Nuevo'},
+  {nom:'Grupo Inmobiliario Sur',tel:'963 877 001',web:'grupoinmsur.com',ciudad:'Valencia',sector:'Inmobiliaria',score:7,estado:'Nuevo'},
+];
+
+let LOGS = [
+  {c:'#00ff88',msg:'Scraping completado: 91 leads · Inmobiliarias Valencia',h:'hace 3 min'},
+  {c:'#00ff88',msg:'Actor Apify corregido: poidata~google-maps-scraper',h:'hace 5 min'},
+  {c:'#fbbf24',msg:'91 leads sin email — enriquecimiento pendiente',h:'hace 5 min'},
+  {c:'#fbbf24',msg:'País corregido a España en el script',h:'hace 6 min'},
+  {c:'#4d9eff',msg:'Notion DB ID actualizado: f478bedb-64cc-4244-87a9-2de02ad59658',h:'hace 10 min'},
+  {c:'#4d9eff',msg:'Agente Dev: commit #47 · módulo auth JWT',h:'hace 15 min'},
+  {c:'#4d9eff',msg:'Setup completado: Node v22.20 · Python 3.14 · Claude Code',h:'hace 25 min'},
+  {c:'#00ff88',msg:'Sistema Orbita OS iniciado',h:'hace 30 min'},
+];
+
+// ══════════════════════════════════════════════════
+// ROUTER
+// ══════════════════════════════════════════════════
+const PAGINAS = {
+  'inicio':'Centro de control','leads':'Base de leads',
+  'ag-scraping':'Agente Scraping','ag-enriquecimiento':'Agente Enriquecimiento',
+  'ag-pm':'Agente PM','ag-dev':'Agente Dev','ag-docs':'Agente Docs',
+  'config':'Configuración','log':'Log del sistema'
+};
+
+function navegar(id) {
+  // Ocultar todas las páginas
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('visible'));
+  // Mostrar la correcta
+  const pg = document.getElementById('p-'+id);
+  if(pg) pg.classList.add('visible');
+  // Actualizar nav
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('activo'));
+  document.querySelectorAll('.nav-item').forEach(n=>{
+    if(n.getAttribute('onclick')?.includes("'"+id+"'")) n.classList.add('activo');
+  });
+  // Breadcrumb
+  document.getElementById('breadcrumb').textContent = PAGINAS[id]||id;
+  // Scroll top
+  document.querySelector('.content').scrollTop=0;
+  // Log
+  addLog('#4d9eff','Navegando a: '+PAGINAS[id]);
+}
+
+// ══════════════════════════════════════════════════
+// RELOJ
+// ══════════════════════════════════════════════════
+function tick(){
+  document.getElementById('reloj').textContent =
+    new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+}
+setInterval(tick,1000);tick();
+
+// ══════════════════════════════════════════════════
+// CONTADORES ANIMADOS
+// ══════════════════════════════════════════════════
+function animarContadores(){
+  document.querySelectorAll('[data-cnt]').forEach(el=>{
+    const t=parseInt(el.dataset.cnt);let c=0;
+    const step=t/50;
+    const int=setInterval(()=>{c=Math.min(c+step,t);el.textContent=Math.floor(c).toLocaleString('es-ES');if(c>=t)clearInterval(int);},16);
+  });
+}
+setTimeout(animarContadores,300);
+
+// ══════════════════════════════════════════════════
+// TABLAS DE LEADS
+// ══════════════════════════════════════════════════
+function scoreClass(s){return s>=8?'sc-hi':s>=6?'sc-me':'sc-lo';}
+function iniciales(n){return n.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();}
+
+function renderTablaRecientes(){
+  const t=document.getElementById('tabla-recientes');
+  t.innerHTML=`<thead><tr><th></th><th>Empresa</th><th>Teléfono</th><th>Sector</th><th>Score</th></tr></thead><tbody>
+    ${LEADS.slice(0,8).map(l=>`
+      <tr>
+        <td><div class="avatar-chip">${iniciales(l.nom)}</div></td>
+        <td><div style="font-size:12px;font-weight:600;">${l.nom}</div><div style="font-family:var(--mono);font-size:9px;color:var(--txt2);">${l.ciudad}</div></td>
+        <td style="font-family:var(--mono);font-size:10px;">${l.tel}</td>
+        <td><span class="tag tag-b">${l.sector}</span></td>
+        <td><div class="score-chip ${scoreClass(l.score)}">${l.score}</div></td>
+      </tr>`).join('')}
+  </tbody>`;
+}
+
+let leadsActuales = [...LEADS];
+function renderTablaLeads(datos){
+  const t=document.getElementById('tabla-leads');
+  t.innerHTML=`<thead><tr><th></th><th>Empresa</th><th>Teléfono</th><th>Web</th><th>Sector</th><th>Score</th><th>Estado</th><th></th></tr></thead><tbody>
+    ${datos.map(l=>`
+      <tr>
+        <td><div class="avatar-chip">${iniciales(l.nom)}</div></td>
+        <td><div style="font-size:12px;font-weight:600;">${l.nom}</div><div style="font-family:var(--mono);font-size:9px;color:var(--txt2);">${l.ciudad}</div></td>
+        <td style="font-family:var(--mono);font-size:10px;">${l.tel}</td>
+        <td style="font-family:var(--mono);font-size:10px;color:var(--b);">${l.web}</td>
+        <td><span class="tag tag-b">${l.sector}</span></td>
+        <td><div class="score-chip ${scoreClass(l.score)}">${l.score}</div></td>
+        <td><span class="badge b-wait">Nuevo</span></td>
+        <td><button class="btn btn-sec btn-sm" onclick="toast('ok','Acción registrada para ${l.nom.split(' ')[0]}')">→</button></td>
+      </tr>`).join('')}
+  </tbody>`;
+}
+
+function filtrarLeads(tipo){
+  if(tipo==='alto') renderTablaLeads(LEADS.filter(l=>l.score>=8));
+  else if(tipo==='nuevo') renderTablaLeads(LEADS.filter(l=>l.estado==='Nuevo'));
+  else renderTablaLeads(LEADS);
+  toast('info','Filtro aplicado: '+tipo);
+}
+
+renderTablaRecientes();
+renderTablaLeads(LEADS);
+
+// ══════════════════════════════════════════════════
+// LOG
+// ══════════════════════════════════════════════════
+function addLog(c,msg){
+  LOGS.unshift({c,msg,h:'ahora'});
+  if(LOGS.length>40)LOGS.pop();
+  renderLogs();
+}
+
+function renderLogs(){
+  ['log-mini','log-full'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(!el)return;
+    const n=id==='log-mini'?6:LOGS.length;
+    el.innerHTML=LOGS.slice(0,n).map((l,i)=>`
+      <div class="log-row" style="animation-delay:${i*.03}s">
+        <div class="log-dot" style="background:${l.c}"></div>
+        <div class="log-txt">${l.msg}</div>
+        <div class="log-ts">${l.h}</div>
+      </div>`).join('');
+  });
+  const lc=document.getElementById('log-count-full');
+  if(lc) lc.textContent=LOGS.length+' eventos';
+}
+renderLogs();
+
+function limpiarLog(){
+  LOGS=[];renderLogs();toast('ok','Log limpiado');
+}
+
+// ══════════════════════════════════════════════════
+// TOASTS
+// ══════════════════════════════════════════════════
+function toast(tipo,msg){
+  const c=document.getElementById('toast-container');
+  const t=document.createElement('div');
+  const iconos={ok:'✅',err:'❌',info:'ℹ️'};
+  t.className=`toast t-${tipo}`;
+  t.innerHTML=`<span class="toast-icon">${iconos[tipo]||'ℹ️'}</span><span class="toast-txt">${msg}</span>`;
+  c.appendChild(t);
+  addLog(tipo==='ok'?'#00ff88':tipo==='err'?'#f87171':'#4d9eff',msg);
+  setTimeout(()=>{t.style.animation='toastIn .3s ease reverse';setTimeout(()=>t.remove(),300);},3500);
+}
+
+// ══════════════════════════════════════════════════
+// MODAL NUEVO CICLO
+// ══════════════════════════════════════════════════
+function abrirModal(){document.getElementById('modal-ciclo').classList.add('open');}
+function cerrarModal(){document.getElementById('modal-ciclo').classList.remove('open');}
+document.getElementById('modal-ciclo').addEventListener('click',function(e){if(e.target===this)cerrarModal();});
+
+function lanzarCiclo(){
+  const obj=document.getElementById('m-objetivo')?.value||'inmobiliarias Valencia';
+  const src=document.getElementById('m-fuente')?.value||'google_maps';
+  const lim=document.getElementById('m-limite')?.value||100;
+  cerrarModal();
+  toast('ok',`Ciclo lanzado: ${obj} · ${src} · ${lim} leads`);
+  addLog('#00ff88','Orquestador: nuevo ciclo iniciado → '+obj);
+  setTimeout(()=>addLog('#4d9eff','Agente Scraping: lanzando actor Apify...'),1000);
+  setTimeout(()=>addLog('#fbbf24','Esperando resultados de Apify (2-3 min)...'),2500);
+  // Actualizar preview del comando
+  const cmd=document.getElementById('cmd-preview');
+  if(cmd) cmd.textContent=`python3 agent_scraping.py --fuente ${src} --objetivo "${obj}" --limite ${lim}`;
+}
+
+// ══════════════════════════════════════════════════
+// EXPORT CSV
+// ══════════════════════════════════════════════════
+function exportarCSV(){
+  const rows=[['Nombre','Teléfono','Web','Ciudad','Sector','Score','Estado'],...LEADS.map(l=>[l.nom,l.tel,l.web,l.ciudad,l.sector,l.score,l.estado])];
+  const csv=rows.map(r=>r.join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download='orbita_leads_valencia.csv';a.click();
+  toast('ok','CSV exportado: orbita_leads_valencia.csv');
+}
+
+// ══════════════════════════════════════════════════
+// AUTO LOG
+// ══════════════════════════════════════════════════
+const autoMsgs=[
+  {c:'#00ff88',msg:'Agente Scraping: sistema en espera de nuevo ciclo'},
+  {c:'#4d9eff',msg:'Agente Dev: PR #48 en progreso · 51% completado'},
+  {c:'#fbbf24',msg:'Recordatorio: conectar integración Notion para sincronizar'},
+  {c:'#00ff88',msg:'Sistema Orbita OS funcionando correctamente'},
+];
+let ai=0;
+setInterval(()=>{const m=autoMsgs[ai%autoMsgs.length];addLog(m.c,m.msg);ai++;},12000);
+
+// ══════════════════════════════════════════════════
+// TOGGLES FUNCIONALES
+// ══════════════════════════════════════════════════
+document.querySelectorAll('.toggle').forEach(t=>{
+  t.addEventListener('click',()=>{
+    const on=t.classList.contains('on');
+    toast('info','Ajuste '+(on?'desactivado':'activado'));
+  });
+});
+</script>
+</body>
+</html>
