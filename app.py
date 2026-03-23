@@ -102,6 +102,33 @@ async def diagnose():
     """Endpoint de diagnóstico de configuración"""
     return get_diagnosis()
 
+class ImportReq(BaseModel):
+    urls: list[str]
+    industria: str = "general"
+
+@app.post("/api/leads/importar")
+async def importar_leads(req: ImportReq):
+    """Importar leads desde lista de URLs (modo zero-cost)"""
+    os.makedirs("outputs", exist_ok=True)
+    ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+    leads = []
+    for url in req.urls:
+        domain = url.replace("https://", "").replace("http://", "").split("/")[0]
+        leads.append({
+            "company_name": domain.split(".")[0].title(),
+            "domain": domain,
+            "website": url,
+            "instagram": "",
+            "country": "ES",
+            "industry": req.industria,
+            "lead_source": "import",
+            "dedupe_key": domain
+        })
+    archivo = f"outputs/leads_import_{ts}.json"
+    with open(archivo, "w", encoding="utf-8") as f:
+        json.dump(leads, f, indent=2, ensure_ascii=False)
+    return {"ok": True, "archivo": archivo, "total": len(leads)}
+
 @app.get("/api/leads/db")
 async def get_leads_db(limit: int = 100):
     """Obtiene leads desde SQLite"""
