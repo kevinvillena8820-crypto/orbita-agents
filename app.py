@@ -7,8 +7,12 @@ from pydantic import BaseModel
 from dotenv import load_dotenv
 load_dotenv()
 
+# Importar módulos locales
+from orbita_config import get_diagnosis
+from orbita_db import get_stats, get_leads
+
 app = FastAPI()
-estado = {"scraping": "idle", "enrichment": "idle"}
+estado = {"scraping": "idle", "enrichment": "idle", "qa": "idle", "outreach": "idle"}
 
 class CicloReq(BaseModel):
     objetivo: str = "inmobiliarias Valencia España"
@@ -55,6 +59,20 @@ def run_enrichment(req):
     subprocess.run(cmd, timeout=600)
     estado["enrichment"] = "idle"
 
+def run_qa(req):
+    estado["qa"] = "running"
+    cmd = ["python3", "agent_qa.py", "--limite", str(req.limite)]
+    if req.dry_run: cmd.append("--dry-run")
+    subprocess.run(cmd, timeout=300)
+    estado["qa"] = "idle"
+
+def run_outreach(req):
+    estado["outreach"] = "running"
+    cmd = ["python3", "agent_outreach.py", "--limite", str(req.limite)]
+    if req.dry_run: cmd.append("--dry-run")
+    subprocess.run(cmd, timeout=600)
+    estado["outreach"] = "idle"
+
 @app.post("/api/scraping/lanzar")
 async def lanzar_scraping(req: CicloReq, bg: BackgroundTasks):
     if estado["scraping"] == "running": raise HTTPException(400, "Ya en ejecución")
@@ -66,6 +84,32 @@ async def lanzar_enr(req: EnrReq, bg: BackgroundTasks):
     if estado["enrichment"] == "running": raise HTTPException(400, "Ya en ejecución")
     bg.add_task(run_enrichment, req)
     return {"ok": True}
+
+@app.post("/api/qa/lanzar")
+async def lanzar_qa(req: EnrReq, bg: BackgroundTasks):
+    if estado["qa"] == "running": raise HTTPException(400, "Ya en ejecución")
+    bg.add_task(run_qa, req)
+    return {"ok": True, "msg": "QA pipeline launched"}
+
+@app.post("/api/outreach/lanzar")
+async def lanzar_outreach(req: EnrReq, bg: BackgroundTasks):
+    if estado["outreach"] == "running": raise HTTPException(400, "Ya en ejecución")
+    bg.add_task(run_outreach, req)
+    return {"ok": True, "msg": "Outreach pipeline launched"}
+
+@app.get("/api/config/diagnose")
+async def diagnose():
+    """Endpoint de diagnóstico de configuración"""
+    return get_diagnosis()
+
+@app.get("/api/leads/db")
+async def get_leads_db(limit: int = 100):
+    """Obtiene leads desde SQLite"""
+    try:
+        leads = get_leads(limit=limit)
+        return {"leads": leads, "total": len(leads)}
+    except Exception as e:
+        raise HTTPException(500, str(e))
 
 if __name__ == "__main__":
     import uvicorn

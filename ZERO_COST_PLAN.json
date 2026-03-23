@@ -1,0 +1,150 @@
+{
+  "assumptions": [
+    "Usuario tiene acceso a internet y un VPS en Hostinger",
+    "No hay presupuesto para APIs de pago",
+    "El proyecto debe ser LEGAL y cumplir TOS de todos los servicios",
+    "Se permite uso de herramientas gratuitas con límites razonables"
+  ],
+  "free_stack": {
+    "scraping": "HTTP scraping con requests + BeautifulSoup (gratuito, sin API)",
+    "storage": "SQLite local (gratis) o Notion si el usuario ya tiene token",
+    "enrichment": "Web scraping de páginas de contacto + regex (sin APIs de pago)",
+    "llm": "Ollama local (gratis) o templates deterministas como fallback",
+    "notes": [
+      "agent_enrichment.py ya implementa enrichment gratuito (web scraping)",
+      "No se requiere Apify si el usuario no tiene clave gratuita",
+      "SQLite es más rápido y no requiere credenciales externas"
+    ]
+  },
+  "implementation_plan": [
+    {
+      "step": 1,
+      "changes": [
+        "Crear archivo .env.example con variables opcionales",
+        "Implementar detección automática de modo gratuito vs modo pago"
+      ],
+      "files": [".env.example", "orbita_config.py"],
+      "commands": ["cp .env.example .env"],
+      "success_criteria": [".env creado con valores por defecto"]
+    },
+    {
+      "step": 2,
+      "changes": [
+        "Modificar agent_scraping.py para modo gratuito: URLs manuales",
+        "Añadir fallback: si no hay APIFY_API_KEY, usar scraper HTTP local"
+      ],
+      "files": ["agent_scraping.py"],
+      "commands": [],
+      "success_criteria": ["Scraping funciona sin Apify usando listas de URLs"]
+    },
+    {
+      "step": 3,
+      "changes": [
+        "Crear agent_outreach.py con templates deterministas",
+        "Añadir opción de enhancement con LLM local (Ollama) si está disponible"
+      ],
+      "files": ["agent_outreach.py"],
+      "commands": ["pip install jinja2"],
+      "success_criteria": ["Genera mensajes IG DM, WhatsApp, Email"]
+    },
+    {
+      "step": 4,
+      "changes": [
+        "Crear agent_qa.py con scoring basado en reglas",
+        "Rubrica: fit (25pts), intent (25pts), reachability (25pts), opportunity (25pts)"
+      ],
+      "files": ["agent_qa.py"],
+      "commands": [],
+      "success_criteria": ["Devuelve JSON con score_total, subscores, verdict"]
+    },
+    {
+      "step": 5,
+      "changes": [
+        "Añadir endpoint /api/config/diagnose al app.py",
+        "Validar variables de entorno y reportar features habilitadas"
+      ],
+      "files": ["app.py"],
+      "commands": [],
+      "success_criteria": ["Endpoint devuelve JSON con features habilitadas"]
+    },
+    {
+      "step": 6,
+      "changes": [
+        "Implementar SQLite como storage fallback",
+        "Añadir tabla leads con campos: id, company, domain, instagram, country, score, status"
+      ],
+      "files": ["orbita_db.py"],
+      "commands": [],
+      "success_criteria": ["Leads se guardan en SQLite si no hay Notion"]
+    },
+    {
+      "step": 7,
+      "changes": [
+        "Añadir rate limiting y retry logic",
+        "Implementar cache simple para evitar scrapes重复"
+      ],
+      "files": ["orbita_utils.py"],
+      "commands": [],
+      "success_criteria": ["Sistema maneja errores gracefully"]
+    },
+    {
+      "step": 8,
+      "changes": [
+        "Añadir nuevos endpoints al orchestrator",
+        "Integrar agent_outreach y agent_qa en el pipeline"
+      ],
+      "files": ["orchestrator.py"],
+      "commands": [],
+      "success_criteria": ["Pipeline completo: scraping → storage → enrichment → qa → outreach"]
+    }
+  ],
+  "code_patches": [
+    {
+      "file": "orbita_config.py",
+      "patch": "new_file: Configuración centralizada con detection de modo gratuito/pago"
+    },
+    {
+      "file": "agent_outreach.py",
+      "patch": "new_file: Generador de mensajes con templates Jinja2"
+    },
+    {
+      "file": "agent_qa.py",
+      "patch": "new_file: Scoring de leads basado en reglas (sin LLM)"
+    },
+    {
+      "file": "orbita_db.py",
+      "patch": "new_file: SQLite fallback para storage"
+    },
+    {
+      "file": "app.py",
+      "patch": "+ endpoint /api/config/diagnose"
+    },
+    {
+      "file": "agent_scraping.py",
+      "patch": "if not APIFY_API_KEY: usar modo scraper HTTP local"
+    }
+  ],
+  "verification": {
+    "smoke_tests": [
+      "GET / → 200 OK (dashboard)",
+      "GET /api/estado → 200 OK",
+      "GET /api/leads → 200 OK",
+      "GET /api/config/diagnose → 200 OK con features habilitadas",
+      "POST /api/scraping/lanzar → 200 OK (background)",
+      "POST /api/enriquecimiento/lanzar → 200 OK (background)"
+    ],
+    "expected_outputs": [
+      "Scraping: guarda leads en outputs/leads_*.json",
+      "Enrichment: añade campos email/phone a leads",
+      "QA: añade score_total y verdict a cada lead",
+      "Outreach: genera mensajes en campo 'outreach_messages'"
+    ]
+  },
+  "limits": [
+    "Web scraping: depende de rate limits del sitio objetivo (recomendado: 1req/segundo)",
+    "Notion API: max 3 requests/segundo (rate limit oficial)",
+    "Ollama: limitado por recursos del VPS (RAM/CPU)",
+    "SQLite: sin límite inherente, pero tamaño de archivo controlado por usuario",
+    "Sin API keys = sin acceso a Apify (scraping limitado a URLs manuales)"
+  ]
+}
