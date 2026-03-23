@@ -142,7 +142,7 @@ async def importar_leads(req: ImportReq):
 async def get_leads_db(limit: int = 100):
     """Obtiene leads desde SQLite"""
     try:
-        leads = get_leads(limit=limit)
+        leads = get_leads(limit)
         return {"leads": leads, "total": len(leads)}
     except Exception as e:
         raise HTTPException(500, str(e))

@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  orbita-agents:
+    image: python:3.11-slim
+    container_name: orbita-agents
+    working_dir: /app
+    command: >
+      bash -c "apt-get update && apt-get install -y git &&
+               git clone https://github.com/kevinvillena8820-crypto/orbita-agents.git /tmp/orbita &&
+               cp -r /tmp/orbita/* /app/ && cp -r /tmp/orbita/.* /app/ 2>/dev/null || true &&
+               rm -rf /tmp/orbita &&
+               pip install --no-cache-dir fastapi uvicorn python-dotenv requests beautifulsoup4 apify-client urllib3 &&
+               python -m uvicorn app:app --host 0.0.0.0 --port 8000"
+    ports:
+      - "8000:8000"
+    environment:
+      - PORT=8000
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - orbita-outputs:/app/outputs
+      - orbita-logs:/app/logs
+    restart: unless-stopped
+
+volumes:
+  orbita-outputs:
+  orbita-logs:
