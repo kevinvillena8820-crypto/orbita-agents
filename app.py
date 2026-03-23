@@ -9,7 +9,10 @@ load_dotenv()
 
 # Importar módulos locales
 from orbita_config import get_diagnosis
-from orbita_db import get_stats, get_leads
+from orbita_db import get_stats, get_leads, save_lead, init_db
+
+# Initialize DB on startup
+init_db()
 
 app = FastAPI()
 estado = {"scraping": "idle", "enrichment": "idle", "qa": "idle", "outreach": "idle"}
@@ -114,7 +117,7 @@ async def importar_leads(req: ImportReq):
     leads = []
     for url in req.urls:
         domain = url.replace("https://", "").replace("http://", "").split("/")[0]
-        leads.append({
+        lead = {
             "company_name": domain.split(".")[0].title(),
             "domain": domain,
             "website": url,
@@ -123,7 +126,13 @@ async def importar_leads(req: ImportReq):
             "industry": req.industria,
             "lead_source": "import",
             "dedupe_key": domain
-        })
+        }
+        leads.append(lead)
+        # Also save to SQLite
+        try:
+            save_lead(lead)
+        except Exception as e:
+            print(f"Warning: Could not save to SQLite: {e}")
     archivo = f"outputs/leads_import_{ts}.json"
     with open(archivo, "w", encoding="utf-8") as f:
         json.dump(leads, f, indent=2, ensure_ascii=False)
