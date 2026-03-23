@@ -17,7 +17,7 @@ services:
     environment:
       - PORT=8000
       - PYTHONUNBUFFERED=1
-      - APOLLO_API_KEY=${APOLLO_API_KEY:-}
+      - APOLLO_API_KEY=KRBKk2cVa91iNKamr_Ygqw
     volumes:
       - orbita-outputs:/app/outputs
       - orbita-logs:/app/logs

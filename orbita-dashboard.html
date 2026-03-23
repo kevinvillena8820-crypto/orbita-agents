@@ -810,7 +810,7 @@ nav{
             <div style="margin-top:10px;"><span class="badge b-wait">Esperando leads enriquecidos</span></div>
           </div>
           <div class="hero-acciones">
-            <button class="btn btn-pri" onclick="toast('info','Esperando leads con email del agente de enriquecimiento')">▶ Activar cuando haya emails</button>
+            <button class="btn btn-pri" onclick="lanzarEnriquecimiento()">▶ Lanzar Enriquecimiento</button>
             <button class="btn btn-sec" onclick="toast('info','Los tickets aparecerán en tu Notion automáticamente')">📋 Ver tickets</button>
           </div>
         </div>
@@ -1151,6 +1151,28 @@ function toast(tipo,msg){
   c.appendChild(t);
   addLog(tipo==='ok'?'#00ff88':tipo==='err'?'#f87171':'#4d9eff',msg);
   setTimeout(()=>{t.style.animation='toastIn .3s ease reverse';setTimeout(()=>t.remove(),300);},3500);
+}
+
+// ══════════════════════════════════════════════════
+// ENRIQUECIMIENTO
+// ══════════════════════════════════════════════════
+async function lanzarEnriquecimiento() {
+  try {
+    const resp = await fetch('/api/enriquecimiento/lanzar', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({limite: 50, dry_run: false})
+    });
+    const data = await resp.json();
+    if (data.ok) {
+      toast('ok', '✅ Enriquecimiento iniciado!');
+      setTimeout(() => location.reload(), 2000);
+    } else {
+      toast('err', 'Error: ' + (data.msg || 'Unknown error'));
+    }
+  } catch(e) {
+    toast('err', 'Error de conexión: ' + e.message);
+  }
 }
 
 // ══════════════════════════════════════════════════
