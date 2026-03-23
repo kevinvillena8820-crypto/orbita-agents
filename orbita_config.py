@@ -29,6 +29,9 @@ class OrbitaConfig:
     anthropic_key: Optional[str]
     ollama_url: Optional[str]
     
+    # Apollo (email enrichment)
+    apollo_key: Optional[str]
+    
     # Features habilitadas
     features: dict
     
@@ -61,6 +64,9 @@ def load_config() -> OrbitaConfig:
     else:
         llm_mode = "templates"  # Fallback sin LLM
     
+    # Apollo (email enrichment)
+    apollo_key = os.getenv("APOLLO_API_KEY")
+    
     # Enrichment siempre disponible (ya es gratuito)
     enrichment_enabled = True
     
@@ -83,6 +89,7 @@ def load_config() -> OrbitaConfig:
         llm_mode=llm_mode,
         anthropic_key=anthropic_key,
         ollama_url=ollama_url,
+        apollo_key=apollo_key,
         features=features
     )
 
@@ -94,6 +101,7 @@ def get_diagnosis() -> dict:
         "scraping_mode": config.scraping_mode,
         "storage_mode": config.storage_mode,
         "llm_mode": config.llm_mode,
+        "apollo_enabled": bool(config.apollo_key),
         "features_enabled": config.features,
         "missing_env_vars": get_missing_vars(),
         "recommendations": get_recommendations(config)
@@ -102,7 +110,7 @@ def get_diagnosis() -> dict:
 def get_missing_vars() -> list:
     """Lista variables de entorno faltantes"""
     required = ["NOTION_TOKEN", "NOTION_LEADS_DB"]
-    optional = ["APIFY_API_KEY", "ANTHROPIC_API_KEY", "OLLAMA_URL", "SUPABASE_ACCESS_TOKEN"]
+    optional = ["APIFY_API_KEY", "ANTHROPIC_API_KEY", "OLLAMA_URL", "SUPABASE_ACCESS_TOKEN", "APOLLO_API_KEY"]
     
     missing = []
     for var in required:
@@ -127,6 +135,9 @@ def get_recommendations(config: OrbitaConfig) -> list:
     
     if not config.notion_token:
         recs.append("Sin Notion: usa SQLite como storage gratuito")
+    
+    if not config.apollo_key:
+        recs.append("Sin Apollo: usa scraping web gratuito para enrichment")
     
     return recs
 

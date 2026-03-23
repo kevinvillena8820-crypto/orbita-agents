@@ -29,6 +29,7 @@ load_dotenv()
 
 NOTION_TOKEN    = os.getenv("NOTION_TOKEN")
 NOTION_LEADS_DB = os.getenv("NOTION_LEADS_DB")
+APOLLO_API_KEY  = os.getenv("APOLLO_API_KEY")
 
 RUTAS_CONTACTO = [
     "/contacto", "/contact", "/contactar",
@@ -124,6 +125,31 @@ def buscar_en_google(nombre, dominio):
     except: pass
     return "", ""
 
+def buscar_en_apollo(dominio):
+    """Busca emails en Apollo.io (API gratuita: 100 búsquedas/mes)"""
+    if not APOLLO_API_KEY or not dominio: return "", ""
+    url = f"https://api.apollo.io/api/v1/mixed_people_search?api_key={APOLLO_API_KEY}"
+    payload = {
+        "domain": dominio,
+        "page": 1
+    }
+    try:
+        r = requests.post(url, json=payload, headers={"Content-Type": "application/json"}, timeout=10)
+        if r.status_code == 200:
+            data = r.json()
+            people = data.get("people", [])
+            if people:
+                # Preferir emails con el mismo dominio
+                for p in people:
+                    email = p.get("email")
+                    if email and dominio.split(".")[-1] in email:
+                        return email, "apollo"
+                # Si no hay del mismo dominio, tomar el primero
+                if people[0].get("email"):
+                    return people[0].get("email"), "apollo"
+    except: pass
+    return "", ""
+
 def actualizar_notion(nombre, email, fuente):
     if not NOTION_TOKEN or not NOTION_LEADS_DB: return False
     h = {"Authorization": f"Bearer {NOTION_TOKEN}",
@@ -153,8 +179,8 @@ def main():
     args = p.parse_args()
 
     print(f"\n{C.BOLD}{'═'*55}{C.W}")
-    print(f"{C.BOLD}  ✉️  ORBITA — Enriquecimiento GRATUITO{C.W}")
-    print(f"{C.BOLD}  Web scraping + mailto + Google (sin API key){C.W}")
+    print(f"{C.BOLD}  ✉️  ORBITA — Enriquecimiento{C.W}")
+    print(f"{C.BOLD}  Apollo + Web scraping + mailto + Google{C.W}")
     print(f"{C.BOLD}{'═'*55}{C.W}\n")
 
     # Cargar leads
@@ -191,10 +217,15 @@ def main():
             lead["email"] = f"info@{dominio}"; lead["email_fuente"] = "dry_run"
             log(f"   → DRY-RUN: info@{dominio}", "warn"); ok += 1
         else:
-            # Estrategia 1: scraping web
-            email, fuente = buscar_en_web(web)
+            # Estrategia 1: Apollo (si hay API key)
+            if APOLLO_API_KEY:
+                email, fuente = buscar_en_apollo(dominio)
+            
+            # Estrategia 2: scraping web
+            if not email:
+                email, fuente = buscar_en_web(web)
 
-            # Estrategia 2: Google
+            # Estrategia 3: Google
             if not email:
                 time.sleep(0.5)
                 email, fuente = buscar_en_google(nombre, dominio)
