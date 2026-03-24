@@ -571,8 +571,8 @@ nav{
                 </div>
                 <div class="agente-card" onclick="navegar('ag-enriquecimiento')">
                   <div class="ac-top"><span class="ac-ico">✉️</span><span class="badge b-wait">Pendiente</span></div>
-                  <div class="ac-body"><div class="ac-nom">Enriquecimiento</div><div class="ac-desc">Hunter.io · Emails</div></div>
-                  <div><div class="ac-stat">0 emails obtenidos</div></div>
+                  <div class="ac-body"><div class="ac-nom">Enriquecimiento</div><div class="ac-desc">Apollo.io · Emails</div></div>
+                  <div><div class="ac-stat">Listo para enriquecer</div></div>
                 </div>
                 <div class="agente-card" onclick="navegar('ag-pm')">
                   <div class="ac-top"><span class="ac-ico">📋</span><span class="badge b-wait">Esperando</span></div>
@@ -623,7 +623,7 @@ nav{
               <div class="panel-body">
                 <div class="flujo">
                   <div class="paso-item"><div class="paso-num p-done">✓</div><div class="paso-info"><div class="paso-nom">Scraping</div><div class="paso-sub">91 leads · Valencia ✓</div></div></div>
-                  <div class="paso-item"><div class="paso-num p-now">2</div><div class="paso-info"><div class="paso-nom">Enriquecimiento</div><div class="paso-sub">Hunter.io · Pdte. configurar</div></div></div>
+                  <div class="paso-item"><div class="paso-num p-now">2</div><div class="paso-info"><div class="paso-nom">Enriquecimiento</div><div class="paso-sub">Apollo.io · Listo</div></div></div>
                   <div class="paso-item"><div class="paso-num p-todo">3</div><div class="paso-info"><div class="paso-nom">Guardado Notion</div><div class="paso-sub">Conectar integración</div></div></div>
                   <div class="paso-item"><div class="paso-num p-todo">4</div><div class="paso-info"><div class="paso-nom">Contacto IA</div><div class="paso-sub">Email personalizado</div></div></div>
                 </div>
@@ -753,33 +753,33 @@ nav{
           <div class="hero-l">
             <div class="hero-ico">✉️</div>
             <div class="hero-nom">ENRIQUECIMIENTO</div>
-            <div class="hero-desc">// Hunter.io · Apollo.io · Encuentra emails de leads</div>
-            <div style="margin-top:10px;"><span class="badge b-wait">Pendiente de configurar</span></div>
+            <div class="hero-desc">// Apollo.io · Scraping · Encuentra emails de leads</div>
+            <div style="margin-top:10px;"><span class="badge b-ok">Configurado con Apollo</span></div>
           </div>
           <div class="hero-acciones">
-            <button class="btn btn-pri" onclick="toast('info','Configura HUNTER_API_KEY en tu .env primero')">⚡ Activar agente</button>
-            <button class="btn btn-sec" onclick="toast('info','Ve a hunter.io y obtén tu API key gratuita')">🔑 Obtener API key</button>
+            <button class="btn btn-pri" onclick="lanzarEnriquecimiento()">⚡ Lanzar Enriquecimiento</button>
+            <button class="btn btn-sec" onclick="toast('info','Tu cuenta de Apollo tiene 100 búsquedas/mes gratis')">📊 Panel Apollo</button>
           </div>
         </div>
         <div class="grid-met g3 fade-in d1">
           <div class="met cy"><div class="met-lbl">Leads sin email</div><div class="met-val">91</div><div class="met-sub">Todos necesitan enriquecimiento</div></div>
           <div class="met cb"><div class="met-lbl">Tasa estimada</div><div class="met-val">~60%</div><div class="met-sub">Emails encontrables</div></div>
-          <div class="met cg"><div class="met-lbl">Emails esperados</div><div class="met-val">~54</div><div class="met-sub">Con Hunter.io gratuito</div></div>
+          <div class="met cg"><div class="met-lbl">Emails esperados</div><div class="met-val">~54</div><div class="met-sub">Con Apollo.io gratuito</div></div>
         </div>
         <div class="layout2 fade-in d2">
           <div>
             <div class="panel">
-              <div class="panel-h"><span class="panel-tit">⚙️ Configurar Hunter.io</span><span class="badge b-err">Sin configurar</span></div>
+              <div class="panel-h"><span class="panel-tit">⚙️ Configurar Apollo.io</span><span class="badge b-on">Configurado</span></div>
               <div class="panel-body">
-                <div style="background:var(--y2);border:1px solid rgba(251,191,36,.2);border-radius:8px;padding:14px;margin-bottom:16px;font-family:var(--mono);font-size:10px;color:var(--y);">
-                  ⚠️ Añade HUNTER_API_KEY a tu .env para activar este agente. Obtén 25 búsquedas/mes gratis en hunter.io
+                <div style="background:var(--g2);border:1px solid rgba(34,197,94,.2);border-radius:8px;padding:14px;margin-bottom:16px;font-family:var(--mono);font-size:10px;color:var(--g);">
+                  ✅ Apollo.io configurado - 100 búsquedas mensuales gratis
                 </div>
-                <div class="config-fila"><div><div class="config-k">Hunter.io API Key</div><div class="config-v">Obtener en hunter.io/api-keys</div></div><span class="badge b-err">No configurada</span></div>
+                <div class="config-fila"><div><div class="config-k">Apollo.io API Key</div><div class="config-v">Configurada</div></div><span class="badge b-on">OK</span></div>
                 <div class="config-fila"><div><div class="config-k">Modo de búsqueda</div><div class="config-v">Cómo buscar emails</div></div><span class="tag tag-b">Dominio + nombre</span></div>
-                <div class="config-fila"><div><div class="config-k">Confianza mínima</div><div class="config-v">Score de Hunter.io</div></div><span class="config-val">70%</span></div>
+                <div class="config-fila"><div><div class="config-k">Confianza mínima</div><div class="config-v">Score de Apollo.io</div></div><span class="config-val">70%</span></div>
                 <div class="config-fila"><div><div class="config-k">Guardar en Notion</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
                 <div style="margin-top:16px;background:var(--s3);border-radius:8px;padding:12px;font-family:var(--mono);font-size:9px;color:var(--g);">
-                  # Añade esto a tu .env<br>HUNTER_API_KEY=tu_key_aqui<br><br># Luego ejecuta:<br>python3 agent_enrichment.py --fuente outputs/leads_google_maps_*.json
+                  # Añade esto a tu .env<br>APOLLO_API_KEY=tu_key_aqui<br><br># Luego ejecuta:<br>python3 agent_enrichment.py --fuente outputs/leads_google_maps_*.json
                 </div>
               </div>
             </div>
@@ -791,7 +791,7 @@ nav{
                 <div class="flujo">
                   <div class="paso-item"><div class="paso-num p-done">1</div><div class="paso-info"><div class="paso-nom">Lee leads de Notion</div><div class="paso-sub">Los 91 leads sin email</div></div></div>
                   <div class="paso-item"><div class="paso-num p-todo">2</div><div class="paso-info"><div class="paso-nom">Busca el dominio web</div><div class="paso-sub">Extrae dominio del campo Web</div></div></div>
-                  <div class="paso-item"><div class="paso-num p-todo">3</div><div class="paso-info"><div class="paso-nom">Consulta Hunter.io</div><div class="paso-sub">Busca emails del dominio</div></div></div>
+                  <div class="paso-item"><div class="paso-num p-todo">3</div><div class="paso-info"><div class="paso-nom">Consulta Apollo.io</div><div class="paso-sub">Busca emails del dominio</div></div></div>
                   <div class="paso-item"><div class="paso-num p-todo">4</div><div class="paso-info"><div class="paso-nom">Actualiza Notion</div><div class="paso-sub">Guarda email + confianza</div></div></div>
                 </div>
               </div>
@@ -927,7 +927,7 @@ nav{
                 <div class="config-fila"><div><div class="config-k">APIFY_API_KEY</div><div class="config-v">Para agente de scraping</div></div><span class="badge b-on">Configurada</span></div>
                 <div class="config-fila"><div><div class="config-k">ANTHROPIC_API_KEY</div><div class="config-v">Para Claude Code</div></div><span class="badge b-on">Configurada</span></div>
                 <div class="config-fila"><div><div class="config-k">NOTION_TOKEN</div><div class="config-v">Para sincronizar leads</div></div><span class="badge b-on">Configurada</span></div>
-                <div class="config-fila"><div><div class="config-k">HUNTER_API_KEY</div><div class="config-v">Para enriquecimiento</div></div><span class="badge b-err">Sin configurar</span></div>
+                <div class="config-fila"><div><div class="config-k">APOLLO_API_KEY</div><div class="config-v">Para enriquecimiento</div></div><span class="badge b-on">Configurada</span></div>
               </div>
             </div>
             <div class="panel" style="margin-top:14px;">
