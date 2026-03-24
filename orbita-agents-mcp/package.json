@@ -1,0 +1,22 @@
+{
+  "name": "orbita-agents-mcp",
+  "version": "1.0.0",
+  "description": "MCP Server for Orbita Agents - Monitor and control your lead generation agents",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "mcp",
+    "orbita",
+    "agents",
+    "lead-generation"
+  ]
+}
