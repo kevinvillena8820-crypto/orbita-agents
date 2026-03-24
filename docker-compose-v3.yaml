@@ -7,13 +7,12 @@ services:
     working_dir: /app
     command: >
       bash -c "apt-get update && apt-get install -y git &&
-               git clone https://github.com/kevinvillena8820-crypto/orbita-agents.git /tmp/orbita &&
-               cp -r /tmp/orbita/* /app/ && cp -r /tmp/orbita/.* /app/ 2>/dev/null || true &&
-               rm -rf /tmp/orbita &&
-               pip install --no-cache-dir fastapi uvicorn python-dotenv requests beautifulsoup4 apify-client urllib3 &&
-               python -m uvicorn app:app --host 0.0.0.0 --port 5000"
+               git clone https://github.com/kevinvillena8820-crypto/orbita-agents.git . &&
+               pip install fastapi uvicorn python-dotenv requests beautifulsoup4 apify-client urllib3 &&
+               mkdir -p outputs logs &&
+               python -m uvicorn app:app --host 0.0.0.0 --port 8000"
     ports:
-      - "5000:8000"
+      - "8000:8000"
     environment:
       - PORT=8000
       - PYTHONUNBUFFERED=1
