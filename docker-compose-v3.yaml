@@ -11,9 +11,9 @@ services:
                cp -r /tmp/orbita/* /app/ && cp -r /tmp/orbita/.* /app/ 2>/dev/null || true &&
                rm -rf /tmp/orbita &&
                pip install --no-cache-dir fastapi uvicorn python-dotenv requests beautifulsoup4 apify-client urllib3 &&
-               python -m uvicorn app:app --host 0.0.0.0 --port 8000"
+               python -m uvicorn app:app --host 0.0.0.0 --port 5000"
     ports:
-      - "8000:8000"
+      - "5000:8000"
     environment:
       - PORT=8000
       - PYTHONUNBUFFERED=1
